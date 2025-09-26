@@ -7,6 +7,7 @@ const CheckoutSchema = new mongoose.Schema({
       name: String,
       price: Number,
       quantity: Number,
+      image: String, 
     },
   ],
   subtotal: Number,
