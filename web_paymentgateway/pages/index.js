@@ -3,11 +3,16 @@ import Link from "next/link";
 
 export default function Home() {
   const [products, setProducts] = useState([]);
-  
+  const [filtered, setFiltered] = useState([]);
+  const [category, setCategory] = useState("All");
+
   useEffect(() => {
     fetch("/api/products")
       .then((r) => r.json())
-      .then((d) => setProducts(d.data || []));
+      .then((d) => {
+        setProducts(d.data || []);
+        setFiltered(d.data || []);
+      });
   }, []);
 
   function addToCart(product) {
@@ -25,6 +30,14 @@ export default function Home() {
     alert("Added to cart");
   }
 
+  function filterCategory(cat) {
+    setCategory(cat);
+    if (cat === "All") setFiltered(products);
+    else setFiltered(products.filter((p) => p.category === cat));
+  }
+
+  const categories = ["All", "Coffee", "Tea", "Milk", "Smoothies", "Dessert"];
+
   return (
     <div style={{ padding: 20 }}>
       <header
@@ -34,16 +47,64 @@ export default function Home() {
           alignItems: "center",
         }}
       >
-        <h1>Store</h1>
+        <h1>Cafe Menu</h1>
         <Link href="/checkout">Checkout</Link>
       </header>
 
-      <div>
-        {products.map((p) => (
+      {/* Category Filter */}
+      <div style={{ margin: "20px 0" }}>
+        {categories.map((cat) => (
+          <button
+            key={cat}
+            onClick={() => filterCategory(cat)}
+            style={{
+              marginRight: 10,
+              padding: "5px 10px",
+              backgroundColor: category === cat ? "#333" : "#eee",
+              color: category === cat ? "#fff" : "#000",
+              border: "none",
+              borderRadius: 5,
+              cursor: "pointer",
+            }}
+          >
+            {cat}
+          </button>
+        ))}
+      </div>
+
+      <div style={{ display: "flex", flexWrap: "wrap" }}>
+        {filtered.map((p) => (
           <div
             key={p._id}
-            style={{ border: "1px solid #ddd", margin: 10, padding: 10 }}
+            style={{
+              border: "1px solid #ddd",
+              margin: 10,
+              padding: 10,
+              width: 200,
+            }}
           >
+            <div
+              style={{
+                width: "100%",
+                height: 150,
+                backgroundColor: "#ccc",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                marginBottom: 10,
+              }}
+            >
+              {p.image ? (
+                <img
+                  src={p.image}
+                  alt={p.name}
+                  style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "cover",}
+                }
+                />
+              ) : (
+                <span style={{ fontSize: 40 }}>☕</span>
+              )}
+            </div>
             <h3>
               {p.name} — Rp {p.price}
             </h3>

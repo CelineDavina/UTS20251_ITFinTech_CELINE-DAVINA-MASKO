@@ -21,7 +21,7 @@ export default async function handler(req, res) {
     amount,
     payer_email: "customer@example.com", // optional, replace if you collect an email
     description: `Payment for checkout ${checkoutId}`,
-    success_redirect_url: `${process.env.NEXT_PUBLIC_BASE_URL}/payment?checkoutId=${checkoutId}`,
+    success_redirect_url: process.env.NEXT_PUBLIC_BASE_URL, 
     failure_redirect_url: `${process.env.NEXT_PUBLIC_BASE_URL}/payment?checkoutId=${checkoutId}&status=failed`,
     // callback_url can be set here if Xendit supports it for your account:
     callback_url: `${process.env.NEXT_PUBLIC_BASE_URL}/api/webhook`,
