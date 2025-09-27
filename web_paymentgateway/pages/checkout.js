@@ -32,7 +32,7 @@ export default function CheckoutPage() {
 
   async function continueToPayment() {
     setLoading(true);
-    const tax = Math.round(subtotal * 0.1); // 10% tax
+    const tax = Math.round(subtotal * 0.1); 
     const total = subtotal + tax;
     try {
       const res = await fetch("/api/checkout", {
@@ -99,7 +99,7 @@ export default function CheckoutPage() {
       <div
         style={{
           marginTop: 40,
-          marginBottom: 60, // ✅ gap from footer
+          marginBottom: 60,
           width: "100%",
           maxWidth: 650,
           backgroundColor: "#fff8f2",
