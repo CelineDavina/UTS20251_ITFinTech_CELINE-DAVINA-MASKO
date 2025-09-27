@@ -104,11 +104,14 @@ export default function Payment() {
               // padding: "8px 16px",
               // borderRadius: 20,
               border: "none",
-              // backgroundColor: "#f5e4d8",
               color: "#6b4f3f",
               fontWeight: "bold",
               cursor: "pointer",
+              transition: "all 0.2s ease", // smooth transition
+
             }}
+                className="back-btn"
+
           >
             ← Back
           </button>
@@ -255,6 +258,10 @@ export default function Payment() {
             transform: translateY(0);
           }
         }
+            .back-btn:hover {
+    transform: scale(1.05); /* slightly enlarge */
+    color: #d9b79f; /* change text color */
+  }
       `}</style>
     </div>
   );

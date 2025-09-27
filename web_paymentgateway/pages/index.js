@@ -102,32 +102,69 @@ export default function Home() {
       </div>
 
       {/* Checkout cart in top-right */}
-      <div
-        style={{
-          position: "absolute",
-          top: 20,
-          right: 20,
-          backgroundColor: "#fff",
-          borderRadius: 50,
-          padding: "10px 18px",
-          boxShadow: "0px 4px 12px rgba(0,0,0,0.15)",
-          transition: "transform 0.3s",
-        }}
-        onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.1)")}
-        onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
-      >
-        <Link
-          href="/checkout"
-          style={{
-            fontSize: 20,
-            fontWeight: "bold",
-            color: "#6b4f3f",
-            textDecoration: "none",
-          }}
-        >
-          🛒 Checkout
-        </Link>
-      </div>
+{/* Checkout and History buttons stacked vertically */}
+<div
+  style={{
+    position: "absolute",
+    top: 20,
+    right: 20,
+    display: "flex",
+    flexDirection: "column",
+    gap: 10, // space between buttons
+  }}
+>
+  {/* Checkout button */}
+  <div
+    style={{
+      backgroundColor: "#fff",
+      borderRadius: 50,
+      padding: "10px 18px",
+      boxShadow: "0px 4px 12px rgba(0,0,0,0.15)",
+      transition: "transform 0.3s",
+    }}
+    onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.1)")}
+    onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+  >
+    <Link
+      href="/checkout"
+      style={{
+        fontSize: 20,
+        fontWeight: "bold",
+        color: "#6b4f3f",
+        textDecoration: "none",
+      }}
+    >
+      🛒Checkout
+    </Link>
+  </div>
+
+  {/* History button */}
+  <div
+    style={{
+      backgroundColor: "#fff",
+      borderRadius: 50,
+      padding: "10px 18px",
+      boxShadow: "0px 4px 12px rgba(0,0,0,0.15)",
+      transition: "transform 0.3s",
+    }}
+    onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.1)")}
+    onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+  >
+    <Link
+      href="/history"
+      style={{
+        fontSize: 20,
+        fontWeight: "bold",
+        color: "#6b4f3f",
+        textDecoration: "none",
+      }}
+    >
+      🧾Status
+    </Link>
+  </div>
+</div>
+
+
 
       {/* Search bar */}
       <div
