@@ -23,7 +23,6 @@ export default async function handler(req, res) {
     description: `Payment for checkout ${checkoutId}`,
     success_redirect_url: process.env.NEXT_PUBLIC_BASE_URL, 
     failure_redirect_url: process.env.NEXT_PUBLIC_BASE_URL, 
-    // callback_url can be set here if Xendit supports it for your account:
     callback_url: `${process.env.NEXT_PUBLIC_BASE_URL}/api/webhook`,
   };
 

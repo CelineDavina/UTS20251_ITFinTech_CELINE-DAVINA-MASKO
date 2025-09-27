@@ -23,7 +23,6 @@ export default function CheckoutPage() {
     c[idx].quantity = c[idx].quantity + delta;
 
     if (c[idx].quantity <= 0) {
-      // remove the item
       c.splice(idx, 1);
     }
 

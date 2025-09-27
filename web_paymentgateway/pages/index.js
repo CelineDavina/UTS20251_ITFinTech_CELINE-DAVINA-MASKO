@@ -102,7 +102,6 @@ export default function Home() {
       </div>
 
       {/* Checkout cart in top-right */}
-{/* Checkout and History buttons stacked vertically */}
 <div
   style={{
     position: "absolute",

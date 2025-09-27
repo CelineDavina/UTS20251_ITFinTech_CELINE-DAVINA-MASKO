@@ -1,6 +1,6 @@
 import dbConnect from "../../lib/dbConnect";
 import Payment from "../../models/Payment";
-import Checkout from "../../models/Checkout"; // ✅ add this
+import Checkout from "../../models/Checkout"; 
 
 export default async function handler(req, res) {
   try {
