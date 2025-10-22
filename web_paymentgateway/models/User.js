@@ -3,11 +3,12 @@ import bcrypt from "bcryptjs";
 
 const UserSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
+  email: { type: String, unique: true, sparse: true },
   password: { type: String, required: true },
   role: { type: String, enum: ["admin", "user"], default: "user" },
-  phone: String, // nomor WA untuk MFA
-  mfaCode: String, // kode verifikasi OTP WhatsApp
-  mfaExpires: Date, // masa berlaku OTP
+  phone: String, 
+  mfaCode: String, 
+  mfaExpires: Date, 
 });
 
 // hash password sebelum save

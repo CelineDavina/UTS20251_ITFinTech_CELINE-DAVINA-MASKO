@@ -26,7 +26,11 @@ export default async function handler(req, res) {
       "https://api.fonnte.com/send",
       {
         target: user.phone,
-      message: `STEM's Coffee Shop - Kode verifikasi Anda: ${code}. Kode ini berlaku selama 5 menit. Jangan bagikan kepada siapa pun.`
+      message: `☕ *STEM's Coffee Shop* ☕
+
+Here is your login verification code: *${code}*
+
+This code is valid for *5 minutes*. Please *do not share this code with anyone* to keep your account secure.`
       },
       {
         headers: {

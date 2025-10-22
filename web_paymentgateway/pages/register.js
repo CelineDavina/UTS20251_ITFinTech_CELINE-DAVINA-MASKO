@@ -49,6 +49,17 @@ export default function RegisterPage() {
         <h1 style={styles.title}>☕ Register at Stem's Coffee Shop</h1>
 
         <form onSubmit={handleSubmit} style={styles.form}>
+
+        <label>Email:</label>
+        <input
+          type="email"
+          name="email"
+          value={form.email} 
+          onChange={handleChange}
+          required
+          style={styles.input}
+        />
+
           <label>Username:</label>
           <input
             type="text"

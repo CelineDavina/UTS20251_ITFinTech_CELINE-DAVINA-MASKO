@@ -52,8 +52,15 @@ export default async function handler(req, res) {
               "https://api.fonnte.com/send",
               {
                 target: checkout.user.phone,
-                message: `✅ Pembayaran Anda sebesar Rp ${checkout.total.toLocaleString()} telah diterima. Terima kasih telah berbelanja di Stem's Coffee Shop ☕`,
-              },
+        message: `🎉 *Payment Successful!*
+
+☕ *STEM's Coffee Shop* ☕
+
+Hello ${checkout.user.username || "Customer"} 👋  
+We have received your payment of *Rp ${checkout.total.toLocaleString()}*.
+
+Thank you for shopping with us!`,
+                    },
               { headers: { Authorization: process.env.FONNTE_TOKEN } }
             );
             console.log("✅ WhatsApp sent to:", checkout.user.phone);

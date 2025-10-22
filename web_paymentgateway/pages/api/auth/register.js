@@ -7,8 +7,8 @@ export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ message: "Only POST allowed" });
 
   try {
-    const { username, password, phone, role } = req.body;
-    const user = new User({ username, password, phone, role });
+    const { username, password, phone, role, email} = req.body;
+    const user = new User({ username, password, phone, role, email});
     await user.save();
     res.status(201).json({ message: "User registered successfully" });
   } catch (err) {
