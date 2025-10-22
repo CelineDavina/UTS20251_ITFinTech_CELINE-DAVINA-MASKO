@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/router";
 
 export default function Home() {
   const [products, setProducts] = useState([]);
   const [filtered, setFiltered] = useState([]);
   const [category, setCategory] = useState("All");
   const [search, setSearch] = useState("");
+  const [loggedIn, setLoggedIn] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     fetch("/api/products")
@@ -14,6 +17,11 @@ export default function Home() {
         setProducts(d.data || []);
         setFiltered(d.data || []);
       });
+
+    // ✅ Check login status
+    fetch("/api/auth/check").then(async (r) => {
+      setLoggedIn(r.status === 200);
+    });
   }, []);
 
   function addToCart(product) {
@@ -30,6 +38,12 @@ export default function Home() {
       });
     localStorage.setItem("cart", JSON.stringify(cart));
     alert("Added to cart");
+  }
+
+  async function handleLogout() {
+    await fetch("/api/auth/logout", { method: "POST" });
+    setLoggedIn(false);
+    router.push("/login");
   }
 
   function filterCategory(cat) {
@@ -67,8 +81,7 @@ export default function Home() {
         flexDirection: "column",
         alignItems: "center",
         padding: 0,
-        overflowX: "hidden",  
-
+        overflowX: "hidden",
       }}
     >
       {/* Banner */}
@@ -83,7 +96,6 @@ export default function Home() {
             "repeating-linear-gradient(45deg, rgba(255,255,255,0.05) 0, rgba(255,255,255,0.05) 20px, transparent 20px, transparent 40px)",
           backgroundSize: "200% 200%",
           animation: "moveBg 10s linear infinite",
-
         }}
       >
         <h1
@@ -101,67 +113,121 @@ export default function Home() {
         </p>
       </div>
 
-      {/* Checkout cart in top-right */}
-<div
-  style={{
-    position: "absolute",
-    top: 20,
-    right: 20,
-    display: "flex",
-    flexDirection: "column",
-    gap: 10, // space between buttons
-  }}
->
-  {/* Checkout button */}
-  <div
-    style={{
-      backgroundColor: "#fff",
-      borderRadius: 50,
-      padding: "10px 18px",
-      boxShadow: "0px 4px 12px rgba(0,0,0,0.15)",
-      transition: "transform 0.3s",
-    }}
-    onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.1)")}
-    onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
-  >
-    <Link
-      href="/checkout"
-      style={{
-        fontSize: 20,
-        fontWeight: "bold",
-        color: "#6b4f3f",
-        textDecoration: "none",
-      }}
-    >
-      🛒Checkout
-    </Link>
-  </div>
+      {/* 🧠 Login/Logout buttons (top-left) */}
+      <div
+        style={{
+          position: "absolute",
+          top: 20,
+          left: 20,
+          display: "flex",
+          flexDirection: "column",
+          gap: 10,
+        }}
+      >
+        {!loggedIn ? (
+          <Link
+            href="/login"
+            style={{
+              backgroundColor: "#fff",
+              borderRadius: 50,
+              padding: "10px 18px",
+              boxShadow: "0px 4px 12px rgba(0,0,0,0.15)",
+              fontSize: 20,
+              fontWeight: "bold",
+              color: "#6b4f3f",
+              textDecoration: "none",
+              transition: "transform 0.3s",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.1)")}
+            onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+          >
+            🔑 Login
+          </Link>
+        ) : (
+          <button
+            onClick={handleLogout}
+            style={{
+              backgroundColor: "#fff",
+              borderRadius: 50,
+              padding: "10px 18px",
+              boxShadow: "0px 4px 12px rgba(0,0,0,0.15)",
+              fontSize: 20,
+              fontWeight: "bold",
+              color: "#6b4f3f",
+              border: "none",
+              cursor: "pointer",
+              transition: "transform 0.3s",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.1)")}
+            onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+          >
+            🚪 Logout
+          </button>
+        )}
+      </div>
 
-  {/* History button */}
-  <div
-    style={{
-      backgroundColor: "#fff",
-      borderRadius: 50,
-      padding: "10px 18px",
-      boxShadow: "0px 4px 12px rgba(0,0,0,0.15)",
-      transition: "transform 0.3s",
-    }}
-    onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.1)")}
-    onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
-  >
-    <Link
-      href="/history"
-      style={{
-        fontSize: 20,
-        fontWeight: "bold",
-        color: "#6b4f3f",
-        textDecoration: "none",
-      }}
-    >
-      🧾Status
-    </Link>
-  </div>
-</div>
+      {/* 🛒 Checkout + Status buttons (top-right) */}
+      <div
+        style={{
+          position: "absolute",
+          top: 20,
+          right: 20,
+          display: "flex",
+          flexDirection: "column",
+          gap: 10,
+        }}
+      >
+        <div
+          style={{
+            backgroundColor: "#fff",
+            borderRadius: 50,
+            padding: "10px 18px",
+            boxShadow: "0px 4px 12px rgba(0,0,0,0.15)",
+            transition: "transform 0.3s",
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.1)")}
+          onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+        >
+          <Link
+            href="/checkout"
+            style={{
+              fontSize: 20,
+              fontWeight: "bold",
+              color: "#6b4f3f",
+              textDecoration: "none",
+            }}
+          >
+            🛒 Checkout
+          </Link>
+        </div>
+
+        <div
+          style={{
+            backgroundColor: "#fff",
+            borderRadius: 50,
+            padding: "10px 18px",
+            boxShadow: "0px 4px 12px rgba(0,0,0,0.15)",
+            transition: "transform 0.3s",
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.1)")}
+          onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+        >
+          <Link
+            href="/history"
+            style={{
+              fontSize: 20,
+              fontWeight: "bold",
+              color: "#6b4f3f",
+              textDecoration: "none",
+            }}
+          >
+            🧾 Status
+          </Link>
+        </div>
+      </div>
+
+      {/* ... (rest of your product grid and footer stay the same) ... */}
+
 
 
 

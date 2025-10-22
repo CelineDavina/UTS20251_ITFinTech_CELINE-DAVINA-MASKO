@@ -30,29 +30,53 @@ export default function CheckoutPage() {
     localStorage.setItem("cart", JSON.stringify(c));
   }
 
-  async function continueToPayment() {
-    setLoading(true);
-    const tax = Math.round(subtotal * 0.1); 
-    const total = subtotal + tax;
-    try {
-      const res = await fetch("/api/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ items: cart, subtotal, tax, total }),
-      });
-      const data = await res.json();
-      if (data.checkoutId) {
-        // localStorage.removeItem("cart");
-        router.push(`/payment?checkoutId=${data.checkoutId}`);
-      } else {
-        alert("Error creating checkout");
-      }
-    } catch (err) {
-      alert("Something went wrong!");
-    } finally {
-      setLoading(false);
-    }
+async function continueToPayment() {
+  setLoading(true);
+
+  // ✅ Check login status first
+  const authRes = await fetch("/api/auth/check");
+  if (!authRes.ok) {
+    alert("Please login before proceeding to payment.");
+    setLoading(false);
+    return router.push("/login");
   }
+
+  // ✅ Normalize & sanitize cart before sending
+  const cleanCart = cart.map((item) => ({
+    productId: item.productId || item._id || null,
+    name: item.name || "Unknown Product",
+    price: Number(item.price) || 0,
+    quantity: Number(item.quantity) || 1,
+    image: item.image || "",
+  }));
+
+  const subtotal = cleanCart.reduce((acc, i) => acc + i.price * i.quantity, 0);
+  const tax = Math.round(subtotal * 0.1);
+  const total = subtotal + tax;
+
+  try {
+    const res = await fetch("/api/checkout", {  
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ items: cleanCart, subtotal, tax, total }),
+    });
+
+    const data = await res.json();
+
+    if (res.ok && data.checkoutId) {
+      localStorage.removeItem("cart");
+      router.push(`/payment?checkoutId=${data.checkoutId}`);
+    } else {
+      alert(data.message || "Error creating checkout");
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Something went wrong!");
+  } finally {
+    setLoading(false);
+  }
+}
+
 
   return (
     <div

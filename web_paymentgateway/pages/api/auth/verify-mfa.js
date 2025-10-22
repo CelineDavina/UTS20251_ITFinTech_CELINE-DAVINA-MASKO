@@ -1,5 +1,6 @@
 import dbConnect from "../../../lib/dbConnect";
 import User from "../../../models/User";
+import jwt from "jsonwebtoken";
 
 export default async function handler(req, res) {
   await dbConnect();
@@ -20,5 +21,16 @@ export default async function handler(req, res) {
   user.mfaExpires = null;
   await user.save();
 
-  res.status(200).json({ message: "Login success", user: { username: user.username, role: user.role } });
+  const token = jwt.sign(
+    { id: user._id, username: user.username, role: user.role },
+    process.env.JWT_SECRET,
+    { expiresIn: "3h" }
+  );
+
+  res.setHeader("Set-Cookie", `token=${token}; Path=/; HttpOnly; Secure; SameSite=Strict`);
+
+  return res.status(200).json({
+    message: "Login success",
+    user: { username: user.username, role: user.role },
+  });
 }
