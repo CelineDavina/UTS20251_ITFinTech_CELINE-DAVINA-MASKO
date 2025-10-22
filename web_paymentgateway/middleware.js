@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 
-export const runtime = "nodejs"; // ✅ force Node.js runtime
+export const runtime = "nodejs"; 
 
 export function middleware(req) {
   const token = req.cookies.get("token")?.value;
