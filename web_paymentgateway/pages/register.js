@@ -14,27 +14,34 @@ export default function RegisterPage() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setMessage("Registering...");
+  e.preventDefault();
+  setMessage("Registering...");
 
-    try {
-      const res = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
+  try {
+    const res = await fetch("/api/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form),
+    });
 
-      const data = await res.json();
-      if (res.ok) {
-        setMessage("✅ User registered successfully!");
-        setForm({ username: "", password: "", phone: "", role: "user" });
-      } else {
-        setMessage(`❌ ${data.message}`);
-      }
-    } catch (err) {
-      setMessage("❌ Error connecting to server");
+    const data = await res.json();
+    if (res.ok) {
+      setMessage("✅ User registered successfully! Redirecting to login...");
+
+      // Wait a short moment before redirect
+      setTimeout(() => {
+        window.location.href = "/login";
+      }, 1500);
+
+      setForm({ username: "", password: "", phone: "", role: "user" });
+    } else {
+      setMessage(`❌ ${data.message}`);
     }
-  };
+  } catch (err) {
+    setMessage("❌ Error connecting to server");
+  }
+};
+
 
   return (
     <div style={styles.wrapper}>

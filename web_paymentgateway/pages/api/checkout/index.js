@@ -26,34 +26,23 @@ export default async function handler(req, res) {
   if (!user) return res.status(404).json({ message: "User not found" });
 
   const { items, subtotal, tax, total } = req.body;
-  if (!items || !total) return res.status(400).json({ message: "Invalid payload" });
+  if (!items || !total)
+    return res.status(400).json({ message: "Invalid payload" });
 
+  // ✅ Set status to "PENDING" first — payment not made yet
   const checkout = new Checkout({
     user: user._id,
     items,
     subtotal,
     tax,
     total,
-    status: "PAID",
+    status: "PENDING",
   });
   await checkout.save();
 
-  // ✅ WhatsApp Notification
-  try {
-    await axios.post(
-      "https://api.fonnte.com/send",
-      {
-        target: user.phone,
-        message: `✅ Pembayaran Anda sebesar Rp ${total.toLocaleString()} telah diterima. Terima kasih telah berbelanja di Stem's Coffee Shop ☕`,
-      },
-      { headers: { Authorization: process.env.FONNTE_TOKEN } }
-    );
-  } catch (err) {
-    console.error("❌ Gagal kirim WhatsApp:", err.response?.data || err.message);
-  }
-
+  // ✅ No WhatsApp yet — only after payment confirmation
   return res.status(201).json({
-    message: "Checkout berhasil dan notifikasi WhatsApp telah dikirim.",
+    message: "Checkout created successfully. Awaiting payment.",
     checkoutId: checkout._id,
   });
 }

@@ -4,19 +4,26 @@ export default function HistoryPage() {
   const [payments, setPayments] = useState([]);
   const [activeInvoice, setActiveInvoice] = useState(null);
 
-  useEffect(() => {
-    async function fetchHistory() {
-      try {
-        const res = await fetch("/api/history");
-        const data = await res.json();
-        setPayments(data.payments || []);
-      } catch (err) {
-        console.error("Failed to load history:", err);
-        setPayments([]);
+useEffect(() => {
+  async function fetchHistory() {
+    try {
+      const res = await fetch("/api/history");
+      const data = await res.json();
+
+      if (res.status === 401) {
+        alert(data.message || "Please login first to view your history.");
+        return window.location.href = "/";
       }
+
+      setPayments(data.payments || []);
+    } catch (err) {
+      console.error("Failed to load history:", err);
+      setPayments([]);
     }
-    fetchHistory();
-  }, []);
+  }
+  fetchHistory();
+}, []);
+
 
   function getStatusColor(status) {
     switch (status) {
