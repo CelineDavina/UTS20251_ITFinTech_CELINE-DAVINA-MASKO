@@ -64,7 +64,7 @@ async function continueToPayment() {
     const data = await res.json();
 
     if (res.ok && data.checkoutId) {
-      localStorage.removeItem("cart");
+      // localStorage.removeItem("cart");
       router.push(`/payment?checkoutId=${data.checkoutId}`);
     } else {
       alert(data.message || "Error creating checkout");
