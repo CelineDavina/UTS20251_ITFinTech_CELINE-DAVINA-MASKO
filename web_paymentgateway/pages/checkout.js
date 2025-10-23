@@ -38,7 +38,7 @@ async function continueToPayment() {
   if (!authRes.ok) {
     alert("Please login before proceeding to payment.");
     setLoading(false);
-    return router.push("/login");
+    return router.push(`/login?redirect=${encodeURIComponent(router.asPath)}`);
   }
 
   // ✅ Normalize & sanitize cart before sending

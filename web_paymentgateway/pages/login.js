@@ -53,17 +53,33 @@ export default function LoginPage() {
         }),
       });
 
-      const data = await res.json();
-      if (res.ok) {
-        setMessage("✅ Login successful!");
-        window.location.href = "/admin/dashboard";
-      } else {
-        setMessage(`❌ ${data.message}`);
-      }
-    } catch (err) {
-      setMessage("❌ Server error");
-    }
-  };
+const data = await res.json();
+if (res.ok) {
+  setMessage("✅ Login successful!");
+
+  const redirect = new URLSearchParams(window.location.search).get("redirect");
+
+  // ✅ If user is admin, always send to dashboard
+  if (data.user?.role === "admin") {
+    window.location.href = "/admin/dashboard";
+  } 
+  // ✅ If normal user and there is a redirect, send them back
+  else if (redirect) {
+    window.location.href = redirect;
+  } 
+  // ✅ Otherwise, send to home
+  else {
+    window.location.href = "/";
+  }
+} else {
+  setMessage(`❌ ${data.message}`);
+}
+
+  } catch (err) {
+    setMessage("❌ Server error");
+  }
+};
+
 
   return (
     <div style={styles.wrapper}>

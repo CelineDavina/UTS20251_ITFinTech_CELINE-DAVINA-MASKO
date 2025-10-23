@@ -37,7 +37,7 @@ export default function RegisterPage() {
 
     const data = await res.json();
     if (res.ok) {
-      setMessage("✅ User registered successfully! Redirecting to login...");
+      setMessage("✅ User registered successfully!");
 
       // Wait a short moment before redirect
       setTimeout(() => {
