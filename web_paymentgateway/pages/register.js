@@ -3,6 +3,7 @@ import { useState } from "react";
 export default function RegisterPage() {
   const [form, setForm] = useState({
     username: "",
+    email: "", 
     password: "",
     phone: "",
     role: "user",
@@ -16,6 +17,16 @@ export default function RegisterPage() {
   const handleSubmit = async (e) => {
   e.preventDefault();
   setMessage("Registering...");
+
+      const allowedDomain = "stemcafe.com"; // change this to your company domain
+    if (
+      form.role === "admin" &&
+      (!form.email || !form.email.endsWith(`@${allowedDomain}`))
+    ) {
+      alert(`⚠️ Admin registration requires a company email ending with @${allowedDomain}`);
+      setMessage("❌ Admin must register with a company email (@stemcafe.com)");
+      return;
+    }
 
   try {
     const res = await fetch("/api/auth/register", {
