@@ -112,12 +112,16 @@ if (res.ok) {
 
             <p style={styles.registerText}>
               Don’t have an account?{" "}
-              <span
-                style={styles.registerLink}
-                onClick={() => window.location.href = "/register"}
-              >
-                Register
-              </span>
+<span
+  style={styles.registerLink}
+  onClick={() => {
+    const redirect = new URLSearchParams(window.location.search).get("redirect");
+    window.location.href = redirect ? `/register?redirect=${redirect}` : "/register";
+  }}
+>
+  Register
+</span>
+
             </p>
           </form>
         )}

@@ -40,9 +40,11 @@ export default function RegisterPage() {
       setMessage("✅ User registered successfully!");
 
       // Wait a short moment before redirect
-      setTimeout(() => {
-        window.location.href = "/login";
-      }, 1500);
+setTimeout(() => {
+  const redirect = new URLSearchParams(window.location.search).get("redirect");
+  window.location.href = redirect ? `/login?redirect=${redirect}` : "/login";
+}, 1500);
+
 
       setForm({ username: "", password: "", phone: "", role: "user" });
     } else {
@@ -114,15 +116,19 @@ export default function RegisterPage() {
 
           <button type="submit" style={styles.button}>Register</button>
 
-          <p style={styles.loginText}>
-            Already have an account?{" "}
-            <span
-              style={styles.loginLink}
-              onClick={() => window.location.href = "/login"}
-            >
-              Login
-            </span>
-          </p>
+  <p style={styles.loginText}>
+  Already have an account?{" "}
+  <span
+    style={styles.loginLink}
+    onClick={() => {
+      const redirect = new URLSearchParams(window.location.search).get("redirect");
+      window.location.href = redirect ? `/login?redirect=${redirect}` : "/login";
+    }}
+  >
+    Login
+  </span>
+</p>
+
         </form>
 
         <p style={styles.message}>{message}</p>
