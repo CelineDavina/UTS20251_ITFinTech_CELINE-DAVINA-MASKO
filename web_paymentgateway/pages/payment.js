@@ -39,7 +39,6 @@ export default function Payment() {
   }
 
   if (!checkout) return <div style={{ padding: 20 }}>Loading...</div>;
-
   return (
     <div
       style={{

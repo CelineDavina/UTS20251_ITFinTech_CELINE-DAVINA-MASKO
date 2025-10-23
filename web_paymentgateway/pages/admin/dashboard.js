@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 export default function AdminDashboard() {
   const router = useRouter();
@@ -40,7 +40,6 @@ export default function AdminDashboard() {
       });
   }, []);
 
-  // --- Submit new or edit ---
   const handleSubmit = async (e) => {
     e.preventDefault();
     const method = editingProduct ? "PUT" : "POST";
@@ -55,11 +54,8 @@ export default function AdminDashboard() {
     if (!res.ok) return alert("Error saving product");
     alert(editingProduct ? "Product updated!" : "Product added!");
 
-    // Refresh product list
     const updated = await fetch("/api/products").then((r) => r.json());
     setProducts(updated.data || []);
-
-    // Reset
     setForm({ name: "", description: "", price: "", category: "Coffee", image: "" });
     setEditingProduct(null);
   };
@@ -84,95 +80,39 @@ export default function AdminDashboard() {
         backgroundColor: "#fdf6f0",
         minHeight: "100vh",
         fontFamily: "'Comic Neue', cursive, Arial, sans-serif",
-        padding: 0,
       }}
     >
       {/* Banner */}
-      <div
-        style={{
-          width: "100%",
-          backgroundColor: "#d9b79f",
-          padding: "40px 0",
-          textAlign: "center",
-          boxShadow: "0px 5px 15px rgba(0,0,0,0.1)",
-          backgroundImage:
-            "repeating-linear-gradient(45deg, rgba(255,255,255,0.05) 0, rgba(255,255,255,0.05) 20px, transparent 20px, transparent 40px)",
-          backgroundSize: "200% 200%",
-          animation: "moveBg 10s linear infinite",
-          position: "relative",
-        }}
-      >
-        <button
-          onClick={handleLogout}
-          style={{
-            position: "absolute",
-            top: 20,
-            left: 20,
-            backgroundColor: "#fff",
-            borderRadius: 50,
-            border: "none",
-
-            padding: "10px 20px",
-            fontWeight: "bold",
-            cursor: "pointer",
-            color: "#6b4f3f",
-                          transition: "transform 0.3s",
-
-          }}
-           onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.1)")}
-            onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
-        >
+      <div className="banner">
+        <button onClick={handleLogout} className="logout-btn">
           🚪 Logout
         </button>
-        <h1 style={{ fontSize: 42, color: "#fff", margin: 0 }}>☕ Admin Dashboard</h1>
-        <p style={{ color: "#fff", fontSize: 18, marginTop: 10 }}>
-          Manage your products, view checkouts, and monitor daily revenue.
-        </p>
+        <h1>☕ Admin Dashboard</h1>
+        <p>Manage your products, view checkouts, and monitor daily revenue.</p>
       </div>
 
-      <div style={{ padding: "40px 60px" }}>
-        {/* First row: Graph + Add product */}
-        <div style={{ display: "flex", gap: 30, marginBottom: 40 }}>
-          {/* Graph */}
-          <div
-            style={{
-              flex: 1,
-              background: "#fff8f2",
-              borderRadius: 20,
-              padding: 20,
-              boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
-              height: 400,
-            }}
-          >
-            <h2 style={{ color: "#6b4f3f" }}>📊 Total Pendapatan</h2>
-            <h3 style={{ color: "#9b6b4f" }}>Rp {total.toLocaleString()}</h3>
-            <div style={{ marginTop: 20 }}>
-              <BarChart width={500} height={250} data={dailyData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="total" fill="#d9b79f" />
-              </BarChart>
+      <div className="content">
+        {/* First Row */}
+        <div className="row">
+          <div className="card chart">
+            <h2>📊 Total Pendapatan</h2>
+            <h3>Rp {total.toLocaleString()}</h3>
+            <div style={{ marginTop: 20, width: "100%", height: 250 }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={dailyData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="total" fill="#d9b79f" />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
           </div>
 
-          {/* Add Product */}
-          <div
-            style={{
-              flex: 1,
-              background: "#fff8f2",
-              borderRadius: 20,
-              padding: 20,
-              boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
-              height: 400,
-            }}
-          >
-            <h2 style={{ color: "#6b4f3f" }}>➕ Add Product</h2>
-            <form
-              onSubmit={handleSubmit}
-              style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 15 }}
-            >
+          <div className="card form">
+            <h2>➕ Add Product</h2>
+            <form onSubmit={handleSubmit}>
               <input
                 type="text"
                 placeholder="Name"
@@ -211,103 +151,99 @@ export default function AdminDashboard() {
                 onChange={(e) => setForm({ ...form, image: e.target.value })}
                 style={inputStyle}
               />
-              <button type="submit" style={btnPrimary}>
+              <button type="submit" className="animated-btn">
                 {editingProduct ? "Update" : "Add Product"}
               </button>
             </form>
           </div>
         </div>
 
-        {/* Checkout list */}
-        <div
-          style={{
-            background: "#fff8f2",
-            borderRadius: 20,
-            padding: 20,
-            marginBottom: 40,
-            boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
-          }}
-        >
-          <h2 style={{ color: "#6b4f3f" }}>🧾 Daftar Checkout</h2>
-          <table style={tableStyle}>
-            <thead>
-              <tr style={{ backgroundColor: "#d9b79f", color: "white" }}>
-                <th>Produk</th>
-                <th>Status</th>
-                <th>Total</th>
-                <th>Tanggal</th>
-              </tr>
-            </thead>
-            <tbody>
-              {checkouts.map((c) => (
-                <tr key={c._id}>
-                  <td>{c.items?.map((i) => i.name).join(", ")}</td>
-                  <td>{c.status}</td>
-                  <td>Rp {c.total.toLocaleString()}</td>
-                  <td>{new Date(c.createdAt).toLocaleString()}</td>
+        {/* Checkout Table */}
+        <div className="card table">
+          <h2>🧾 Daftar Checkout</h2>
+          <div className="table-container">
+            <table style={tableStyle}>
+              <thead>
+                <tr style={{ backgroundColor: "#d9b79f", color: "white" }}>
+                  <th>Produk</th>
+                  <th>Status</th>
+                  <th>Total</th>
+                  <th>Tanggal</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {checkouts.map((c) => (
+                  <tr key={c._id}>
+                    <td>{c.items?.map((i) => i.name).join(", ")}</td>
+                    <td>{c.status}</td>
+                    <td>Rp {c.total.toLocaleString()}</td>
+                    <td>{new Date(c.createdAt).toLocaleString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
 
-        {/* Product list */}
-        <div
-          style={{
-            background: "#fff8f2",
-            borderRadius: 20,
-            padding: 20,
-            boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
-          }}
-        >
-          <h2 style={{ color: "#6b4f3f" }}>📦 Product List</h2>
-          <table style={tableStyle}>
-            <thead>
-              <tr style={{ backgroundColor: "#d9b79f", color: "white" }}>
-                <th>Name</th>
-                <th>Description</th>
-                <th>Category</th>
-                <th>Price</th>
-                <th>Image</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {products.map((p) => (
-                <tr key={p._id}>
-                  <td>{p.name}</td>
-                  <td>{p.description}</td>
-                  <td>{p.category}</td>
-                  <td>Rp {p.price}</td>
-                  <td>
-                    {p.image ? (
-                      <img src={p.image} alt={p.name} width="60" style={{ borderRadius: 8 }} />
-                    ) : (
-                      "-"
-                    )}
-                  </td>
-                  <td>
-                    <button
-                      onClick={() => setEditingProduct(p)}
-                      style={btnSmallPrimary}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(p._id)}
-                      style={btnSmallDelete}
-                    >
-                      Delete
-                    </button>
-                  </td>
+        {/* Product Table */}
+        <div className="card table">
+          <h2>📦 Product List</h2>
+          <div className="table-container">
+            <table style={tableStyle}>
+              <thead>
+                <tr style={{ backgroundColor: "#d9b79f", color: "white" }}>
+                  <th>Name</th>
+                  <th>Description</th>
+                  <th>Category</th>
+                  <th>Price</th>
+                  <th>Image</th>
+                  <th>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {products.map((p) => (
+                  <tr key={p._id}>
+                    <td>{p.name}</td>
+                    <td>{p.description}</td>
+                    <td>{p.category}</td>
+                    <td>Rp {p.price}</td>
+                    <td>
+                      {p.image ? (
+                        <img src={p.image} alt={p.name} width="60" style={{ borderRadius: 8 }} />
+                      ) : (
+                        "-"
+                      )}
+                    </td>
+                    <td>
+                  <button
+              onClick={() => {
+                setEditingProduct(p);
+                setForm({
+                  name: p.name,
+                  description: p.description,
+                  price: p.price,
+                  category: p.category,
+                  image: p.image,
+                });
+              }}
+              className="btn-small primary"
+            >
+              Edit
+            </button>
+
+                      <button onClick={() => handleDelete(p._id)} className="btn-small delete">
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
-      {/* Popup edit modal */}
+      {/* Modal */}
       {editingProduct && (
         <div style={modalOverlay}>
           <div style={modalBox}>
@@ -348,14 +284,10 @@ export default function AdminDashboard() {
                 style={inputStyle}
               />
               <div style={{ display: "flex", gap: 10 }}>
-                <button type="submit" style={btnPrimary}>
+                <button type="submit" className="animated-btn">
                   Update
                 </button>
-                <button
-                  type="button"
-                  onClick={() => setEditingProduct(null)}
-                  style={btnCancel}
-                >
+                <button type="button" onClick={() => setEditingProduct(null)} className="btn-cancel">
                   Cancel
                 </button>
               </div>
@@ -364,17 +296,158 @@ export default function AdminDashboard() {
         </div>
       )}
 
+      {/* Styles */}
       <style jsx>{`
+        .banner {
+          background-color: #d9b79f;
+          padding: 40px 0;
+          text-align: center;
+          color: white;
+          position: relative;
+          box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+          background-image: repeating-linear-gradient(
+            45deg,
+            rgba(255, 255, 255, 0.05) 0,
+            rgba(255, 255, 255, 0.05) 20px,
+            transparent 20px,
+            transparent 40px
+          );
+          background-size: 200% 200%;
+          animation: moveBg 10s linear infinite;
+        }
+
+        .logout-btn {
+          position: absolute;
+          top: 20px;
+          left: 20px;
+          background: #fff;
+          border: none;
+          border-radius: 50px;
+          padding: 10px 20px;
+          color: #6b4f3f;
+          font-weight: bold;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+        .logout-btn:hover {
+          transform: scale(1.1);
+          box-shadow: 0 0 10px rgba(107, 79, 63, 0.3);
+        }
+
+        .content {
+          padding: 40px 20px;
+        }
+
+        .row {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 20px;
+          margin-bottom: 40px;
+        }
+
+        .card {
+          flex: 1 1 350px;
+          background: #fff8f2;
+          border-radius: 20px;
+          padding: 20px;
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        form {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          margin-top: 15px;
+        }
+
+        .animated-btn {
+          background-color: #d9b79f;
+          color: white;
+          border: none;
+          border-radius: 10px;
+          padding: 10px 20px;
+          font-weight: bold;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+
+        .animated-btn:hover {
+          transform: scale(1.05);
+          box-shadow: 0 4px 10px rgba(217, 183, 159, 0.4);
+        }
+
+        .btn-small {
+          border: none;
+          border-radius: 8px;
+          padding: 6px 12px;
+          margin-right: 5px;
+          color: white;
+          cursor: pointer;
+          font-weight: bold;
+          transition: all 0.3s ease;
+        }
+
+        .btn-small.primary {
+          background-color: #d9b79f;
+        }
+        .btn-small.delete {
+          background-color: #b85c5c;
+        }
+        .btn-small:hover {
+          transform: scale(1.1);
+          box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-cancel {
+          background-color: #f5e4d8;
+          color: #6b4f3f;
+          border-radius: 10px;
+          padding: 10px 20px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+        .btn-cancel:hover {
+          transform: scale(1.05);
+          box-shadow: 0 4px 10px rgba(245, 228, 216, 0.5);
+        }
+
+        .table-container {
+          overflow-x: auto;
+        }
+
         @keyframes moveBg {
-          from { background-position: 0 0; }
-          to { background-position: 100% 100%; }
+          from {
+            background-position: 0 0;
+          }
+          to {
+            background-position: 100% 100%;
+          }
+        }
+
+        @media (max-width: 768px) {
+          .row {
+            flex-direction: column;
+          }
+          .card {
+            width: 100%;
+          }
+          .banner h1 {
+            font-size: 28px;
+          }
+          .banner p {
+            font-size: 16px;
+          }
+          .logout-btn {
+            top: 10px;
+            left: 10px;
+            padding: 8px 15px;
+          }
         }
       `}</style>
     </div>
   );
 }
 
-// --- Styles ---
 const inputStyle = {
   padding: "10px 15px",
   borderRadius: 10,
@@ -382,19 +455,12 @@ const inputStyle = {
   outline: "none",
   fontSize: 15,
 };
-const btnPrimary = {
-  backgroundColor: "#d9b79f",
-  color: "white",
-  border: "none",
-  borderRadius: 10,
-  padding: "10px 20px",
-  cursor: "pointer",
-  fontWeight: "bold",
+const tableStyle = {
+  borderCollapse: "collapse",
+  width: "100%",
+  marginTop: 10,
+  fontSize: 15,
 };
-const btnSmallPrimary = { ...btnPrimary, borderRadius: 8, padding: "6px 12px", marginRight: 5 };
-const btnSmallDelete = { ...btnSmallPrimary, backgroundColor: "#b85c5c" };
-const btnCancel = { backgroundColor: "#f5e4d8", color: "#6b4f3f", borderRadius: 10, padding: "10px 20px", cursor: "pointer" };
-const tableStyle = { borderCollapse: "collapse", width: "100%", marginTop: 10, fontSize: 15 };
 const modalOverlay = {
   position: "fixed",
   top: 0,
@@ -405,11 +471,13 @@ const modalOverlay = {
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
+  zIndex: 999,
 };
 const modalBox = {
   background: "#fff8f2",
   borderRadius: 20,
   padding: 30,
-  width: 400,
+  width: "90%",
+  maxWidth: 400,
   boxShadow: "0 4px 20px rgba(0,0,0,0.2)",
 };
