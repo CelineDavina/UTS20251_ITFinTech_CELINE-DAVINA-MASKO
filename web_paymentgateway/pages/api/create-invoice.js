@@ -78,6 +78,8 @@ Your order has been created and is awaiting payment.
 🛍️ Total: *Rp ${checkout.total.toLocaleString()}*  
 📦 Items: ${checkout.items.map((i) => `${i.name} × ${i.quantity}`).join(", ")}
 
+💳 *Pay now:* ${data.invoice_url}
+
 Please continue to payment to complete your order.`,
           },
           { headers: { Authorization: process.env.FONNTE_TOKEN } }
