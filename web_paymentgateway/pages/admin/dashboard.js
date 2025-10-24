@@ -1,6 +1,14 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 
 export default function AdminDashboard() {
   const router = useRouter();
@@ -16,6 +24,9 @@ export default function AdminDashboard() {
   const [checkouts, setCheckouts] = useState([]);
   const [total, setTotal] = useState(0);
   const [dailyData, setDailyData] = useState([]);
+  const [monthlyData, setMonthlyData] = useState([]);
+  const [chartMode, setChartMode] = useState("daily");
+  const [chartPage, setChartPage] = useState(0);
 
   const categories = ["All", "Coffee", "Tea", "Milk", "Smoothies", "Dessert"];
 
@@ -23,27 +34,51 @@ export default function AdminDashboard() {
     fetch("/api/products")
       .then((r) => r.json())
       .then((d) => setProducts(d.data || []));
+
     fetch("/api/admin/summary")
       .then((r) => r.json())
       .then((data) => {
         setCheckouts(data.checkouts || []);
         setTotal(data.total || 0);
 
-        const grouped = (data.checkouts || []).reduce((acc, c) => {
+        const checkoutsData = data.checkouts || [];
+
+        // --- Group per hari ---
+        const daily = checkoutsData.reduce((acc, c) => {
           const date = new Date(c.createdAt).toLocaleDateString();
           const existing = acc.find((d) => d.date === date);
           if (existing) existing.total += c.total;
           else acc.push({ date, total: c.total });
           return acc;
         }, []);
-        setDailyData(grouped);
+        setDailyData(daily);
+
+        // --- Group per bulan ---
+        const monthly = checkoutsData.reduce((acc, c) => {
+          const date = new Date(c.createdAt);
+          const month = date.toLocaleString("default", { month: "short" });
+          const year = date.getFullYear();
+          const key = `${month} ${year}`;
+          const existing = acc.find((d) => d.month === key);
+          if (existing) existing.total += c.total;
+          else acc.push({ month: key, total: c.total });
+          return acc;
+        }, []);
+        setMonthlyData(monthly);
       });
   }, []);
+
+  const getVisibleData = (data) => {
+    const start = chartPage * 5;
+    return data.slice(start, start + 5);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const method = editingProduct ? "PUT" : "POST";
-    const url = editingProduct ? `/api/products/${editingProduct._id}` : "/api/products";
+    const url = editingProduct
+      ? `/api/products/${editingProduct._id}`
+      : "/api/products";
 
     const res = await fetch(url, {
       method,
@@ -56,7 +91,13 @@ export default function AdminDashboard() {
 
     const updated = await fetch("/api/products").then((r) => r.json());
     setProducts(updated.data || []);
-    setForm({ name: "", description: "", price: "", category: "Coffee", image: "" });
+    setForm({
+      name: "",
+      description: "",
+      price: "",
+      category: "Coffee",
+      image: "",
+    });
     setEditingProduct(null);
   };
 
@@ -88,20 +129,89 @@ export default function AdminDashboard() {
           🚪 Logout
         </button>
         <h1>☕ Admin Dashboard</h1>
-        <p>Manage your products, view checkouts, and monitor daily revenue.</p>
+        <p>Manage your products, view checkouts, and monitor revenue.</p>
       </div>
 
       <div className="content">
         {/* First Row */}
         <div className="row">
           <div className="card chart">
-            <h2>📊 Total Pendapatan</h2>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <h2>📊 Total Pendapatan</h2>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <select
+                  value={chartMode}
+                  onChange={(e) => {
+                    setChartMode(e.target.value);
+                    setChartPage(0);
+                  }}
+                  style={{
+                    padding: "6px 10px",
+                    borderRadius: "8px",
+                    border: "1px solid #d9b79f",
+                    fontWeight: "bold",
+                    backgroundColor: "#fffaf5",
+                    cursor: "pointer",
+                  }}
+                >
+                  <option value="daily">Per Hari</option>
+                  <option value="monthly">Per Bulan</option>
+                </select>
+
+                <div style={{ display: "flex", gap: "5px" }}>
+                  <button
+                    onClick={() => setChartPage((p) => Math.max(0, p - 1))}
+                    disabled={chartPage === 0}
+                    style={{
+                      backgroundColor: "#f5e4d8",
+                      border: "none",
+                      borderRadius: "8px",
+                      padding: "5px 10px",
+                      cursor: chartPage === 0 ? "not-allowed" : "pointer",
+                    }}
+                  >
+                    ⬅️
+                  </button>
+                  <button
+                    onClick={() => {
+                      const dataLength =
+                        chartMode === "daily"
+                          ? dailyData.length
+                          : monthlyData.length;
+                      if ((chartPage + 1) * 5 < dataLength)
+                        setChartPage((p) => p + 1);
+                    }}
+                    style={{
+                      backgroundColor: "#f5e4d8",
+                      border: "none",
+                      borderRadius: "8px",
+                      padding: "5px 10px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    ➡️
+                  </button>
+                </div>
+              </div>
+            </div>
             <h3>Rp {total.toLocaleString()}</h3>
-            <div style={{ marginTop: 20, width: "100%", height: 250 }}>
+            <div style={{ marginTop: 10, width: "100%", height: 250 }}>
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={dailyData}>
+                <BarChart
+                  data={getVisibleData(
+                    chartMode === "daily" ? dailyData : monthlyData
+                  )}
+                >
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
+                  <XAxis
+                    dataKey={chartMode === "daily" ? "date" : "month"}
+                  />
                   <YAxis />
                   <Tooltip />
                   <Bar dataKey="total" fill="#d9b79f" />
@@ -123,7 +233,9 @@ export default function AdminDashboard() {
               <textarea
                 placeholder="Description"
                 value={form.description}
-                onChange={(e) => setForm({ ...form, description: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, description: e.target.value })
+                }
                 style={inputStyle}
               />
               <input
@@ -209,29 +321,36 @@ export default function AdminDashboard() {
                     <td>Rp {p.price}</td>
                     <td>
                       {p.image ? (
-                        <img src={p.image} alt={p.name} width="60" style={{ borderRadius: 8 }} />
+                        <img
+                          src={p.image}
+                          alt={p.name}
+                          width="60"
+                          style={{ borderRadius: 8 }}
+                        />
                       ) : (
                         "-"
                       )}
                     </td>
                     <td>
-                  <button
-              onClick={() => {
-                setEditingProduct(p);
-                setForm({
-                  name: p.name,
-                  description: p.description,
-                  price: p.price,
-                  category: p.category,
-                  image: p.image,
-                });
-              }}
-              className="btn-small primary"
-            >
-              Edit
-            </button>
-
-                      <button onClick={() => handleDelete(p._id)} className="btn-small delete">
+                      <button
+                        onClick={() => {
+                          setEditingProduct(p);
+                          setForm({
+                            name: p.name,
+                            description: p.description,
+                            price: p.price,
+                            category: p.category,
+                            image: p.image,
+                          });
+                        }}
+                        className="btn-small primary"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete(p._id)}
+                        className="btn-small delete"
+                      >
                         Delete
                       </button>
                     </td>
@@ -248,7 +367,10 @@ export default function AdminDashboard() {
         <div style={modalOverlay}>
           <div style={modalBox}>
             <h2>✏️ Edit Product</h2>
-            <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            <form
+              onSubmit={handleSubmit}
+              style={{ display: "flex", flexDirection: "column", gap: 10 }}
+            >
               <input
                 type="text"
                 value={form.name}
@@ -257,7 +379,9 @@ export default function AdminDashboard() {
               />
               <textarea
                 value={form.description}
-                onChange={(e) => setForm({ ...form, description: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, description: e.target.value })
+                }
                 style={inputStyle}
               />
               <input
@@ -268,7 +392,9 @@ export default function AdminDashboard() {
               />
               <select
                 value={form.category}
-                onChange={(e) => setForm({ ...form, category: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, category: e.target.value })
+                }
                 style={inputStyle}
               >
                 {categories.map((c) => (
@@ -287,7 +413,11 @@ export default function AdminDashboard() {
                 <button type="submit" className="animated-btn">
                   Update
                 </button>
-                <button type="button" onClick={() => setEditingProduct(null)} className="btn-cancel">
+                <button
+                  type="button"
+                  onClick={() => setEditingProduct(null)}
+                  className="btn-cancel"
+                >
                   Cancel
                 </button>
               </div>
