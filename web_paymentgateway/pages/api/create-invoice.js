@@ -18,6 +18,16 @@ export default async function handler(req, res) {
   const checkout = await Checkout.findById(checkoutId);
   if (!checkout) return res.status(404).json({ error: "checkout not found" });
 
+
+    const existingPayment = await Payment.findOne({ checkout: checkout._id });
+  if (existingPayment && existingPayment.invoice_url) {
+    console.log("⚠️ Existing invoice found, returning existing link...");
+    return res.status(200).json({
+      invoice_url: existingPayment.invoice_url,
+      paymentId: existingPayment._id,
+    });
+  }
+  
   // ✅ Ambil user setelah checkout ditemukan
   const user = await User.findById(checkout.user);
 
