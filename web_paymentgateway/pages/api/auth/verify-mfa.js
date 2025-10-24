@@ -8,8 +8,8 @@ export default async function handler(req, res) {
   if (req.method !== "POST")
     return res.status(405).json({ message: "Only POST allowed" });
 
-  const { username, code } = req.body;
-  const user = await User.findOne({ username });
+  const { email, code } = req.body;
+  const user = await User.findOne({ email });
 
   if (!user) return res.status(400).json({ message: "User not found" });
   if (user.mfaCode !== code)
@@ -22,7 +22,7 @@ export default async function handler(req, res) {
   await user.save();
 
   const token = jwt.sign(
-    { id: user._id, username: user.username, role: user.role },
+    { id: user._id, email: user.email, role: user.role },
     process.env.JWT_SECRET,
     { expiresIn: "3h" }
   );

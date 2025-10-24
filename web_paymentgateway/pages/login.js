@@ -1,10 +1,11 @@
 import { useState } from "react";
 
+
 export default function LoginPage() {
   const [step, setStep] = useState(1); // 1 = login, 2 = OTP verification
-  const [form, setForm] = useState({ username: "", password: "", otp: "" });
+  const [form, setForm] = useState({ email: "", password: "", otp: "" });
   const [message, setMessage] = useState("");
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -20,7 +21,7 @@ export default function LoginPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          username: form.username,
+          email: form.email,
           password: form.password,
         }),
       });
@@ -28,7 +29,7 @@ export default function LoginPage() {
       const data = await res.json();
       if (res.ok) {
         setMessage("✅ OTP sent to your WhatsApp!");
-        setUsername(form.username);
+        setEmail(form.email);
         setStep(2);
       } else {
         setMessage(`❌ ${data.message}`);
@@ -48,7 +49,7 @@ export default function LoginPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          username: username,
+          email: email,
           code: form.otp,
         }),
       });
@@ -88,11 +89,11 @@ if (res.ok) {
 
         {step === 1 && (
           <form onSubmit={handleLogin} style={styles.form}>
-            <label>Username:</label>
+            <label>Email:</label>
             <input
               type="text"
-              name="username"
-              value={form.username}
+              name="email"
+              value={form.email}
               onChange={handleChange}
               required
               style={styles.input}

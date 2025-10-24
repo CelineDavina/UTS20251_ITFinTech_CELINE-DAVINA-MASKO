@@ -9,8 +9,8 @@ export default async function handler(req, res) {
   if (req.method !== "POST")
     return res.status(405).json({ message: "Only POST allowed" });
 
-  const { username, password } = req.body;
-  const user = await User.findOne({ username });
+  const { email, password } = req.body;
+  const user = await User.findOne({ email });
   if (!user) return res.status(400).json({ message: "User not found" });
 
   const valid = await bcrypt.compare(password, user.password);
