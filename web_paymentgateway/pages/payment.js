@@ -160,11 +160,13 @@ export default function Payment() {
               fontWeight: "bold",
               fontSize: 18,
               color: "#9b6b4f",
-              marginBottom: 20,
+              marginBottom: 10,
             }}
           >
             Total: Rp {checkout.total}
           </div>
+
+{!invoiceUrl && (
 
           <button
             onClick={payNow}
@@ -196,7 +198,12 @@ export default function Payment() {
           >
             {loading ? "Processing..." : "Pay Now →"}
           </button>
+          )}
+
         </div>
+
+        
+
 
         {/* Payment Iframe */}
         {invoiceUrl && (
